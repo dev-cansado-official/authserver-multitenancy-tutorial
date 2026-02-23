@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="src/EvoAuth.Api/EvoAuth.Api.csproj" Id="82aa2f84-98d8-4aa0-8fe5-6fa00c313ab6" />
+  <Project Path="src/EvoAuth.AuthServer/EvoAuth.AuthServer.csproj" Id="c832d024-b056-4608-8c45-272a5bca33ff" />
+  <Project Path="src/EvoAuth.Shared/EvoAuth.Shared.csproj" Id="5402ebc5-2679-45bf-b618-5cf3b0ad35cf" />
+</Solution>
