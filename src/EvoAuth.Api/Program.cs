@@ -1,6 +1,10 @@
+using EvoAuth.Api.Tenancy;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddScoped<TenantContext>();
+builder.Services.AddScoped<ITenantContext>(sp => sp.GetRequiredService<TenantContext>());
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -14,10 +18,10 @@ builder.Services
         options.RequireHttpsMetadata = true;
 
         // Para dev, pode precisar:
-        // options.BackchannelHttpHandler = new HttpClientHandler
-        // {
-        //     ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-        // };
+        options.BackchannelHttpHandler = new HttpClientHandler
+        {
+            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
+        };
     });
 
 builder.Services.AddAuthorization(options =>
@@ -40,6 +44,7 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseMiddleware<TenantResolverMiddleware>();
 
 app.MapControllers();
 

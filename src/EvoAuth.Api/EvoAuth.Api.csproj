@@ -11,4 +11,8 @@
     <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="10.0.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <ProjectReference Include="..\EvoAuth.Shared\EvoAuth.Shared.csproj" />
+  </ItemGroup>
+
 </Project>
