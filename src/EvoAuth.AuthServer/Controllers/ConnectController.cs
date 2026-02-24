@@ -79,6 +79,11 @@ namespace EvoAuth.AuthServer.Controllers
 
             var principal = await _signInManager.CreateUserPrincipalAsync(user);
 
+            var clientId = request.ClientId;
+            if (!string.IsNullOrWhiteSpace(clientId))
+            {
+                principal.SetClaim("client_id", clientId);
+            }
 
             // ✅ GARANTE o "sub" que o OpenIddict exige
             var userId = await _userManager.GetUserIdAsync(user);

@@ -23,4 +23,8 @@
     <ProjectReference Include="..\EvoAuth.Shared\EvoAuth.Shared.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="NewFolder\" />
+  </ItemGroup>
+
 </Project>

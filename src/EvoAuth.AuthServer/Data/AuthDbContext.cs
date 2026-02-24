@@ -1,4 +1,5 @@
-﻿using EvoAuth.AuthServer.Identity;
+﻿using EvoAuth.AuthServer.Entities;
+using EvoAuth.AuthServer.Identity;
 using EvoAuth.AuthServer.Tenancy;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -11,6 +12,11 @@ namespace EvoAuth.AuthServer.Data
 
         public DbSet<Tenant> Tenants => Set<Tenant>();
         public DbSet<UserTenant> UserTenants => Set<UserTenant>();
+
+        public DbSet<Permission> Permissions => Set<Permission>();
+        public DbSet<Role> RolesApp => Set<Role>();
+        public DbSet<RolePermission> RolePermissions => Set<RolePermission>();
+        public DbSet<UserTenantRole> UserTenantRoles => Set<UserTenantRole>();
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -41,6 +47,21 @@ namespace EvoAuth.AuthServer.Data
                 b.HasOne(x => x.User).WithMany().HasForeignKey(x => x.UserId);
                 b.HasOne(x => x.Tenant).WithMany().HasForeignKey(x => x.TenantId);
             });
+
+
+            builder.Entity<Permission>()
+                .HasIndex(x => x.Key)
+                .IsUnique();
+
+            builder.Entity<Role>()
+                .HasIndex(x => new { x.TenantId, x.ClientId, x.Name })
+                .IsUnique();
+
+            builder.Entity<RolePermission>()
+                .HasKey(x => new { x.RoleId, x.PermissionId });
+
+            builder.Entity<UserTenantRole>()
+                .HasKey(x => new { x.UserId, x.TenantId, x.RoleId });
         }
     }
 }
