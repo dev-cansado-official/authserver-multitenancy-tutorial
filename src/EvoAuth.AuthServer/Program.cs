@@ -39,9 +39,11 @@ builder.Services.AddOpenIddict()
     })
     .AddServer(options =>
     {
+        options.SetIssuer("https://localhost:7155/");
+
         // Endpoints
         options.SetTokenEndpointUris("/connect/token");
-
+        
         // Flows (tutorial)
         options.AllowPasswordFlow();
         options.AllowRefreshTokenFlow();
@@ -50,9 +52,12 @@ builder.Services.AddOpenIddict()
         options.RegisterScopes("api");
 
         // Certificados dev
-        options.AddDevelopmentEncryptionCertificate()
-               .AddDevelopmentSigningCertificate();
+        //options.AddDevelopmentEncryptionCertificate()
+        //       .AddDevelopmentSigningCertificate();
+        options.AddDevelopmentSigningCertificate();
+        options.AddEphemeralEncryptionKey();
 
+        options.DisableAccessTokenEncryption();
 
         // ASP.NET Core host
         options.UseAspNetCore()
