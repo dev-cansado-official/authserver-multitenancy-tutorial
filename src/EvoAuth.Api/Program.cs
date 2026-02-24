@@ -1,5 +1,7 @@
 using EvoAuth.Api.Tenancy;
+using EvoAuth.Shared.Auth;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using OpenIddict.Validation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,17 +13,20 @@ builder.Services.AddEndpointsApiExplorer();
 //builder.Services.AddSwaggerGen();
 
 builder.Services
-    .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
-    .AddJwtBearer(options =>
+    .AddAuthentication(options =>
     {
-        options.Authority = builder.Configuration["Auth:Authority"];
-        options.RequireHttpsMetadata = true;
+        options.DefaultScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+    });
 
-        // Para dev, pode precisar:
-        options.BackchannelHttpHandler = new HttpClientHandler
-        {
-            ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator
-        };
+var authority = builder.Configuration["Auth:Authority"];
+
+builder.Services.AddOpenIddict()
+    .AddValidation(options =>
+    {
+        options.SetIssuer(authority);
+        options.AddAudiences(AuthConstants.ApiResource);
+        options.UseSystemNetHttp();
+        options.UseAspNetCore();
     });
 
 builder.Services.AddAuthorization(options =>
