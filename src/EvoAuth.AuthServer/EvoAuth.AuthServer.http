@@ -1,6 +1,60 @@
-@EvoAuth.AuthServer_HostAddress = http://localhost:5053
+@authserver = https://localhost:7155
+@username = demo@local
+@password = Demo123!
+@admin_client_id = opentenid-admin-portal
+@admin_client_secret = opentenid-admin-portal-secret
+@tenant_id = B53072BE-1B73-4EE5-820C-995F40A36390
+@user_id = 982EA66E-CFE7-465A-9466-2F63CC4399A0
+@role_id = 3F628524-4086-4FCB-8371-60D763C2E68F
 
-GET {{EvoAuth.AuthServer_HostAddress}}/weatherforecast/
-Accept: application/json
+### 1) Token do Admin Portal (copie access_token para @token abaixo)
+POST {{authserver}}/connect/token
+Content-Type: application/x-www-form-urlencoded
 
-###
+grant_type=password&username={{username}}&password={{password}}&client_id={{admin_client_id}}&client_secret={{admin_client_secret}}&scope=api
+
+### cole o access_token retornado aqui
+@token = eyJhbGciOiJSUzI1NiIsImtpZCI6IkU5QkY1RDM4RDNCMEQ1OTRBM0JBRUVDNTA4MjIxNDM4MTlDMEZFNzciLCJ4NXQiOiI2YjlkT05PdzFaU2p1dTdGQ0NJVU9CbkFfbmMiLCJ0eXAiOiJhdCtqd3QifQ.eyJpc3MiOiJodHRwczovL2xvY2FsaG9zdDo3MTU1LyIsImV4cCI6MTc3MTk4OTU0MywiaWF0IjoxNzcxOTg1OTQzLCJhdWQiOiJldm8tYXBpIiwic2NvcGUiOiJhcGkiLCJqdGkiOiI4NTRkMDcxOS05YTkzLTQyMzktYTg5OC0yZjM4ZTNkYWM4ZjciLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6Ijk4MmVhNjZlLWNmZTctNDY1YS05NDY2LTJmNjNjYzQzOTlhMCIsImh0dHA6Ly9zY2hlbWFzLnhtbHNvYXAub3JnL3dzLzIwMDUvMDUvaWRlbnRpdHkvY2xhaW1zL25hbWUiOiJkZW1vQGxvY2FsIiwiaHR0cDovL3NjaGVtYXMueG1sc29hcC5vcmcvd3MvMjAwNS8wNS9pZGVudGl0eS9jbGFpbXMvZW1haWxhZGRyZXNzIjoiZGVtb0Bsb2NhbCIsIkFzcE5ldC5JZGVudGl0eS5TZWN1cml0eVN0YW1wIjoiM09QSlhOQk8yUTdSWTQ1VVNZNE5RRFRENUxMSkdFTjQiLCJzdWIiOiI5ODJlYTY2ZS1jZmU3LTQ2NWEtOTQ2Ni0yZjYzY2M0Mzk5YTAiLCJwcmVmZXJyZWRfdXNlcm5hbWUiOiJkZW1vQGxvY2FsIiwiZW1haWwiOiJkZW1vQGxvY2FsIiwib2lfcHJzdCI6Im9wZW50ZW5pZC1hZG1pbi1wb3J0YWwiLCJjbGllbnRfaWQiOiJvcGVudGVuaWQtYWRtaW4tcG9ydGFsIiwib2lfdGtuX2lkIjoiMjVjMDI2ZjAtMzYwYi00NzA1LTkzYzYtYTdlZjUxNWY5ODJkIn0.MF0sU1O_9yLkg76EpajPxuLhTNmDLrkdKAox9vx4W-zddeKAzj10rz6iA7JJoqh4uBjH9XdiGhAWn5Gz_GUIFqtH3I1xoTdGKcv-ZSHLZA-G-Z2uYOFED8NOasF36ottyRArVJH2nGWMv38PVlkDEfhyRO6Ij_vqQ3kCkTQQ-_K1f5ghtw5GSr-EIfJbgGQcK9Jt73GO2HuzJmFFcv6qGR8ZlBt0bAj2t_ZdL9a6XArwZKd8et28A-oVQXgA8adEVAZD-bXxe9ndtRIouoAr0aEvhtLHp25L4U_K6aaBy8wW41iyW9kCy7CpDD4Ne-lRILmXbytK6z4Wr_7mqZ2uRA
+
+### 2) Descobrir tenants do usuário demo (copie o tenant interno para @tenant_id)
+GET {{authserver}}/tenants/mine
+Authorization: Bearer {{token}}
+
+### 3) Minhas permissões no tenant interno
+GET {{authserver}}/tenants/{{tenant_id}}/me/permissions
+Authorization: Bearer {{token}}
+
+### 4) Criar role para o client admin portal
+POST {{authserver}}/tenants/{{tenant_id}}/roles
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "clientId": "opentenid-admin-portal",
+  "name": "SupportAgent"
+}
+
+### 5) Listar roles por tenant + client
+GET {{authserver}}/tenants/{{tenant_id}}/roles?clientId=opentenid-admin-portal
+Authorization: Bearer {{token}}
+
+### 6) Vincular permissões à role (copie roleId para @role_id)
+POST {{authserver}}/tenants/{{tenant_id}}/roles/{{role_id}}/permissions
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "permissionKeys": [
+    "tenants.read",
+    "users.read"
+  ]
+}
+
+### 7) Atribuir role a um usuário (copie userId para @user_id; pode usar o "sub" do token)
+POST {{authserver}}/tenants/{{tenant_id}}/users/{{user_id}}/roles
+Authorization: Bearer {{token}}
+Content-Type: application/json
+
+{
+  "roleId": "{{role_id}}"
+}

@@ -1,6 +1,25 @@
-@EvoAuth.Api_HostAddress = http://localhost:5143
+@api = https://localhost:7198
+@authserver = https://localhost:7155
+@username = demo@local
+@password = Demo123!
+@admin_client_id = opentenid-admin-portal
+@admin_client_secret = opentenid-admin-portal-secret
+@tenant_id = 00000000-0000-0000-0000-000000000000
 
-GET {{EvoAuth.Api_HostAddress}}/weatherforecast/
-Accept: application/json
+### 1) Gerar token no AuthServer (copie access_token para @token abaixo)
+POST {{authserver}}/connect/token
+Content-Type: application/x-www-form-urlencoded
 
-###
+grant_type=password&username={{username}}&password={{password}}&client_id={{admin_client_id}}&client_secret={{admin_client_secret}}&scope=api
+
+### cole o access_token retornado aqui
+@token = REPLACE_WITH_ACCESS_TOKEN
+
+### 2) Opcional: descobrir tenant interno no AuthServer e copiar para @tenant_id
+GET {{authserver}}/tenants/mine
+Authorization: Bearer {{token}}
+
+### 3) Validar HasPermission("tenants.read") na API de negócio
+GET {{api}}/tenant/current
+Authorization: Bearer {{token}}
+X-Tenant-Id: {{tenant_id}}
