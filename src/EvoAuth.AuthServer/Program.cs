@@ -5,6 +5,7 @@ using EvoAuth.AuthServer.Tenancy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using OpenIddict.Abstractions;
+using OpenIddict.Validation.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -72,7 +73,11 @@ builder.Services.AddOpenIddict()
         options.UseAspNetCore();
     });
 
-builder.Services.AddAuthentication();
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = OpenIddictValidationAspNetCoreDefaults.AuthenticationScheme;
+});
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
@@ -85,6 +90,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 using (var scope = app.Services.CreateScope())

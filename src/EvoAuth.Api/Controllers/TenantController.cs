@@ -1,6 +1,5 @@
-﻿using EvoAuth.Api.Tenancy;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Http;
+﻿using EvoAuth.Api.Authorization;
+using EvoAuth.Api.Tenancy;
 using Microsoft.AspNetCore.Mvc;
 
 namespace EvoAuth.Api.Controllers
@@ -10,7 +9,7 @@ namespace EvoAuth.Api.Controllers
     public class TenantController : ControllerBase
     {
         [HttpGet("current")]
-        [Authorize]
+        [HasPermission("tenants.read")]
         public IActionResult Current([FromServices] ITenantContext tenant)
         {
             if (!tenant.HasTenant)
